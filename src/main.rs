@@ -19,6 +19,7 @@ use qrcode::{
     QrCode,
     render::unicode,
 };
+mod files;
 
 const PORT: i32 = 27717;
 
@@ -30,7 +31,7 @@ struct Api {
 impl Api {
     /// Upload file
     #[oai(path = "/", method = "post")]
-    async fn upload(&self, mut multipart: Multipart) -> Result<Html<&'static str>> {
+    async fn upload(&self, mut multipart: Multipart) -> Result<Html<String>> {
         while let Ok(Some(field)) = multipart.next_field().await {
             let name = field.name().map(ToString::to_string);
             let file_name = match field.file_name().map(ToString::to_string) {
@@ -65,39 +66,12 @@ impl Api {
                 }
             }
         }
-        Ok(Html(
-            r###"
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <title>QrUp File Upload</title>
-            </head>
-            <body>
-                File uploaded successfully!
-            </body>
-            </html>
-            "###,
-        ))
+        Ok(Html(files::HTML_SUCCESS.to_string(),))
     }
 
     #[oai(path = "/", method = "get")]
-    async fn index(&self) -> Result<Html<&'static str>> {
-        Ok(Html(
-            r###"
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <title>QrUp File Upload</title>
-            </head>
-            <body>
-                <form action="/" enctype="multipart/form-data" method="post">
-                    <input type="file" name="upload" id="file">
-                    <button type="submit">Submit</button>
-                </form>
-            </body>
-            </html>
-            "###,
-        ))
+    async fn index(&self) -> Result<Html<String>> {
+        Ok(Html(files::get_html_form(),))
     }
 }
 
