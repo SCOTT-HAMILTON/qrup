@@ -14,6 +14,13 @@ use std::{
 use tokio::sync::mpsc::{
     channel, Sender
 };
+use local_ip_address::local_ip;
+use qrcode::{
+    QrCode,
+    render::unicode,
+};
+
+const PORT: i32 = 27717;
 
 struct Api {
     sender: Sender<bool>
@@ -94,12 +101,25 @@ impl Api {
     }
 }
 
+fn print_qrcode() {
+    let my_local_ip = local_ip().unwrap();
+    // println!("This is my local IP address: {:?}", my_local_ip);
+    let code = QrCode::new(format!("http://{}:{}/", my_local_ip, PORT)).unwrap();
+    let image = code.render::<unicode::Dense1x2>()
+        .dark_color(unicode::Dense1x2::Light)
+        .light_color(unicode::Dense1x2::Dark)
+        .build();
+    println!("{}", image);
+}
+
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var("RUST_LOG", "poem=debug");
     }
     tracing_subscriber::fmt::init();
+
+    print_qrcode(); 
 
     let (tx, mut rx) = channel::<bool>(1);
     let api_service = OpenApiService::new(
@@ -109,17 +129,15 @@ async fn main() -> Result<(), std::io::Error> {
         "QrUp File Uploader",
         "1.0",
     )
-    .server("http://0.0.0.0:27717/");
+    .server(format!("http://0.0.0.0:{}/", PORT));
 
     let app = Route::new().nest("/", api_service);
 
-    Server::new(TcpListener::bind("0.0.0.0:27717"))
+    Server::new(TcpListener::bind(format!("0.0.0.0:{}", PORT)))
         .run_with_graceful_shutdown(
             app,
             async move {
                 rx.recv().await;
-                println!("received lol!");
-                // let _ = tokio::signal::ctrl_c().await;
             },
             Some(Duration::from_secs(5)),
         )
