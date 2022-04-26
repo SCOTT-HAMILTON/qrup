@@ -7,14 +7,14 @@ use poem_openapi::{
     OpenApi, OpenApiService,
 };
 use std::{
-    io::Write,
     fs::OpenOptions,
     time::{Duration, Instant},
     sync::{Mutex, Arc},
+    io::Write,
 };
-
-use tokio::sync::mpsc::{
-    channel, Sender
+use tokio::{
+    sync::mpsc::{ channel, Sender },
+    io::AsyncReadExt,
 };
 use local_ip_address::local_ip;
 use qrcode::{
@@ -51,36 +51,43 @@ impl Api {
                 None => "temp.data".to_string(),
                 Some(n) => n
             };
-            if let Ok(bytes) = field.bytes().await {
-                match OpenOptions::new()
-                    .write(true)
-                    .create(true)
-                    .truncate(true)
-                    .open(&file_name) {
-                    Ok(mut file) =>
-                        match file.write_all(&bytes) {
-                            Ok(_) => {
-                                let _ = self.sender.send(true).await;
-                                let start = Arc::clone(&self.start_upload);
-                                let m_start = start.lock().unwrap();
-                                let s = *m_start;
-                                println!("[log] upload ended in {:?}", s.elapsed());
-                                println!(
-                                    "name={:?} filename={:?} length={}",
-                                    name,
-                                    file_name,
-                                    bytes.len()
-                                );
+            match OpenOptions::new()
+                .write(true)
+                .create(true)
+                .truncate(true)
+                .open(&file_name) {
+                Ok(mut file) => {
+                    let mut reader = field.into_async_read();
+                    loop {
+                        let mut buffer = [0; 1024];
+                        match reader.read(&mut buffer[..]).await {
+                            Ok(n) => {
+                                if n == 0 { break; }
+                                else {
+                                    let _ = file.write_all(&buffer[..n]);
+                                }
                             },
-                            Err(e) =>
-                                println!(
-                                    "[error] couldn't write data to file {}, : {}",
-                                    file_name, e
-                                )
-                        },
-                    Err(e) => println!("[error] can't open file {} : {}",
-                                       file_name, e)
-                }
+                            Err(e) => {
+                                println!("[error] can't read uploaded file stream, {}",
+                                         e);
+                                break;
+                            }
+                        }
+                    }
+
+                    let _ = self.sender.send(true).await;
+                    let start = Arc::clone(&self.start_upload);
+                    let m_start = start.lock().unwrap();
+                    let s = *m_start;
+                    println!("[log] upload ended in {:?}", s.elapsed());
+                    println!(
+                        "[log] file saved to {:?} filename={:?}",
+                        name,
+                        file_name
+                    );
+                },
+                Err(e) => println!("[error] can't open file {} : {}",
+                                   file_name, e)
             }
         }
         Ok(Html(files::HTML_SUCCESS.to_string(),))
