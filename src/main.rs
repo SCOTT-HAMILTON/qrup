@@ -9,8 +9,10 @@ use poem_openapi::{
 use std::{
     io::Write,
     fs::OpenOptions,
-    time::Duration,
+    time::{Duration, Instant},
+    sync::{Mutex, Arc},
 };
+
 use tokio::sync::mpsc::{
     channel, Sender
 };
@@ -24,11 +26,22 @@ mod files;
 const PORT: i32 = 27717;
 
 struct Api {
-    sender: Sender<bool>
+    sender: Sender<bool>,
+    start_upload: Arc<Mutex<Instant>>
 }
 
 #[OpenApi]
 impl Api {
+
+    #[oai(path = "/start", method = "get")]
+    async fn start(&self) -> Result<Html<String>> {
+        let start = Arc::clone(&self.start_upload);
+        let mut m_start = start.lock().unwrap();
+        *m_start = Instant::now();
+        // println!("[log] upload started ! {:?}", Instant::now());
+        Ok(Html(files::get_html_form(),))
+    }
+
     /// Upload file
     #[oai(path = "/", method = "post")]
     async fn upload(&self, mut multipart: Multipart) -> Result<Html<String>> {
@@ -48,6 +61,10 @@ impl Api {
                         match file.write_all(&bytes) {
                             Ok(_) => {
                                 let _ = self.sender.send(true).await;
+                                let start = Arc::clone(&self.start_upload);
+                                let m_start = start.lock().unwrap();
+                                let s = *m_start;
+                                println!("[log] upload ended in {:?}", s.elapsed());
                                 println!(
                                     "name={:?} filename={:?} length={}",
                                     name,
@@ -98,7 +115,8 @@ async fn main() -> Result<(), std::io::Error> {
     let (tx, mut rx) = channel::<bool>(1);
     let api_service = OpenApiService::new(
         Api {
-            sender: tx
+            sender: tx,
+            start_upload: Arc::new(Mutex::new(Instant::now()))
         },
         "QrUp File Uploader",
         "1.0",

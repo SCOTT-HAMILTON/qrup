@@ -228,6 +228,8 @@ pub const SCRIPT_FORM: &str =
       });
 
       // Open and send the request
+
+      fetch(window.location.href+'start');
       request.open("post", url);
       request.send(data);
 
