@@ -5,5 +5,5 @@ let
   # Rolling updates, not deterministic.
   # pkgs = import (fetchTarball("channel:nixpkgs-unstable")) {};
 in with pkgs; mkShell {
-  buildInputs = [ cargo rustc openssl pkg-config ];
+  buildInputs = [ cargo rustc openssl pkg-config rustfmt ];
 }

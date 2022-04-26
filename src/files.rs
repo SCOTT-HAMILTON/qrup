@@ -1,11 +1,11 @@
 pub fn get_html_form() -> String {
-    HTML_FORM.to_string()
-            .replace("{:style}", CSS_FORM)
-            .replace("{:script}", SCRIPT_FORM)
+    HTML_FORM
+        .to_string()
+        .replace("{:style}", CSS_FORM)
+        .replace("{:script}", SCRIPT_FORM)
 }
 
-pub const HTML_SUCCESS: &str = 
-        r###"
+pub const HTML_SUCCESS: &str = r###"
         <html lang="en">
         <head>
             <meta charset="UTF-8">
@@ -17,8 +17,7 @@ pub const HTML_SUCCESS: &str =
         </html>
         "###;
 
-pub const HTML_FORM: &str = 
-        r###"
+pub const HTML_FORM: &str = r###"
 <html lang="en">
 	<head>
 		<meta charset="UTF-8">
@@ -84,14 +83,10 @@ pub const HTML_FORM: &str =
 </html>
         "###;
 
-
-pub const CSS_FORM: &str =
-    r###"
+pub const CSS_FORM: &str = r###"
     "###;
 
-
-pub const SCRIPT_FORM: &str = 
-        r###"
+pub const SCRIPT_FORM: &str = r###"
     // Get a reference to the progress bar, wrapper & status
     var progress = document.getElementById("progress");
     var progress_wrapper = document.getElementById("progress_wrapper");
