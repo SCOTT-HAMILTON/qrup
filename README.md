@@ -5,6 +5,8 @@
 
 Transfer files over LAN from your mobile device to a computer by scanning a QR code without leaving the terminal.
 
+ > qrup was inspired by [qrcp](https://github.com/claudiodangelis/qrcp) and is just a Rust rewrite of their receive file feature.
+
 ## How does it work?
 ![Screenshot](https://user-images.githubusercontent.com/24496705/165276600-92eb56da-1afc-416a-a74f-59034553084e.png)
 
