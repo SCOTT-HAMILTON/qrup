@@ -1,4 +1,4 @@
-use local_ip_address::local_ip;
+use local_ipaddress;
 use poem::{listener::TcpListener, web::Multipart, Result, Route, Server};
 use poem_openapi::{payload::Html, OpenApi, OpenApiService};
 use qrcode::{render::unicode, QrCode};
@@ -86,8 +86,7 @@ impl Api {
 }
 
 fn print_qrcode() {
-    let my_local_ip = local_ip().unwrap();
-    // println!("This is my local IP address: {:?}", my_local_ip);
+    let my_local_ip = local_ipaddress::get().unwrap();
     let code = QrCode::new(format!("http://{}:{}/", my_local_ip, PORT)).unwrap();
     let image = code
         .render::<unicode::Dense1x2>()
