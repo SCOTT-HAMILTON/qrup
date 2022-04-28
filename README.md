@@ -1,5 +1,6 @@
 <p align="center">
-      <a href="https://scott-hamilton.mit-license.org/"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-525252.svg?labelColor=292929&logo=creative%20commons&style=for-the-badge" /></a>
+  <a href="https://scott-hamilton.mit-license.org/"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-525252.svg?labelColor=292929&logo=creative%20commons&style=for-the-badge" /></a>
+  <a href="https://github.com/SCOTT-HAMILTON/qrup/actions"><img alt="Build Status" src="https://img.shields.io/github/workflow/status/SCOTT-HAMILTON/qrup/CI?logo=github-actions&style=for-the-badge" /></a>
 </p>
 <h1 align="center">qrup - Local P2P File transfer from your mobile to your computer</h1>
 
