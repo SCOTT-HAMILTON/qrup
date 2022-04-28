@@ -32,10 +32,6 @@ jobs:
       - uses: cachix/install-nix-action@v15
         with:
           extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm"
-      - uses: cachix/cachix-action@v10
-        with:
-          name: '${{ env.CACHIX_CACHE }}'
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       # Runs a set of commands using the runners shell
       - name: Nix Version
         run: nix --version
