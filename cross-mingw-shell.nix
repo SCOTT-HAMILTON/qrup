@@ -59,7 +59,10 @@ pkgs.mkShell rec {
 
     # Ensures our windows target is added via rustup.
     rustup target add "${rustBuildTargetTriple}"
-    '';
+    build_release() {
+      cargo build --release
+    }
+  '';
   RUSTFLAGS = (builtins.map (a: ''-L ${a}/lib'') [
     mingw_w64
     mingw_w64_pthreads_w_static

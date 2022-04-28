@@ -38,7 +38,10 @@ pkgs.mkShell rec {
 
     # Ensures our windows target is added via rustup.
     rustup target add "${rustBuildTargetTriple}"
-    '';
+    build_release() {
+      cargo build --release
+    }
+  '';
   RUSTFLAGS = 
     "-C link-arg=-Wl,-dynamic-linker,/lib/ld-linux-armhf.so.3 " +
     "-C target-feature=+crt-static";

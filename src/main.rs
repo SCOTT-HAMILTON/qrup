@@ -28,7 +28,6 @@ impl Api {
         let start = Arc::clone(&self.start_upload);
         let mut m_start = start.lock().unwrap();
         *m_start = Instant::now();
-        // println!("[log] upload started ! {:?}", Instant::now());
         Ok(Html(files::get_html_form()))
     }
 
@@ -87,13 +86,15 @@ impl Api {
 
 fn print_qrcode() {
     let my_local_ip = local_ipaddress::get().unwrap();
-    let code = QrCode::new(format!("http://{}:{}/", my_local_ip, PORT)).unwrap();
+    let address = format!("http://{}:{}/", my_local_ip, PORT);
+    let code = QrCode::new(&address).unwrap();
     let image = code
         .render::<unicode::Dense1x2>()
         .dark_color(unicode::Dense1x2::Light)
         .light_color(unicode::Dense1x2::Dark)
         .build();
     println!("{}", image);
+    println!("[log] server address : {}", address);
 }
 
 #[tokio::main]

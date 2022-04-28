@@ -6,4 +6,9 @@ let
   # pkgs = import (fetchTarball("channel:nixpkgs-unstable")) {};
 in with pkgs; mkShell {
   buildInputs = [ cargo rustc openssl pkg-config rustfmt rustup ];
+  shellHook = ''
+    build_release() {
+      cargo build --release
+    }
+  '';
 }
